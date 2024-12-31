@@ -1,10 +1,15 @@
-const router = require('express').Router()
-module.exports = router
+const router = require('express').Router();
+module.exports = router;
 
-router.use('/users', require('./users'))
+router.use('/users', require('./users'));
+router.use('/strengthstats', require('./strengthstats'));
+router.use('/cardiostats', require('./cardiostats'));
+router.use('/strengthtests', require('./strengthtests'));
+router.use('/cardiotests', require('./cardiotests'));
 
+// 404 error handling
 router.use((req, res, next) => {
-  const error = new Error('Not Found')
-  error.status = 404
-  next(error)
-})
+  const error = new Error('Not Found');
+  error.status = 404;
+  next(error);
+});
