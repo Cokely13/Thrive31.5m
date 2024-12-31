@@ -4,11 +4,15 @@ import thunkMiddleware from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
 import cardioStatsReducer from './allCardioStatsStore'
 import singleCardioStatReducer from './singleCardioStatStore';
+import strengthStatsReducer from './allStrengthStatsStore';
+import singleStrengthStatReducer from './singleStrengthStatStore';
 import auth from './auth'
 
 const reducer = combineReducers({ auth,
   allCardioStats: cardioStatsReducer,
   singleCardioStat: singleCardioStatReducer,
+  allStrengthStats: strengthStatsReducer,
+  singleStrengthStat: singleStrengthStatReducer,
  })
 const middleware = composeWithDevTools(
   applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
