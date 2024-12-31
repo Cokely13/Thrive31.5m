@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { models: { StrengthTest } } = require('../db');
+const { models: { StrengthTest, StrengthStat } } = require('../db');
 
 // Get all strength tests
 router.get('/', async (req, res, next) => {
@@ -24,11 +24,25 @@ router.get('/:id', async (req, res, next) => {
 // Create a new strength test
 router.post('/', async (req, res, next) => {
   try {
-    res.status(201).send(await StrengthTest.create(req.body));
+    // Create the new StrengthTest
+    const test = await StrengthTest.create(req.body);
+
+    // Find the associated StrengthStat
+    const strengthStat = await StrengthStat.findOne({
+      where: { userId: req.body.userId, type: req.body.type },
+    });
+
+    if (strengthStat) {
+      // Update the record if the test result is higher
+      if (test.result > strengthStat.record) {
+        await strengthStat.update({ record: test.result });
+      }
+    }
+
+    res.status(201).send(test);
   } catch (error) {
     next(error);
-  }
-});
+  }})
 
 // Update a strength test by ID
 router.put('/:id', async (req, res, next) => {
