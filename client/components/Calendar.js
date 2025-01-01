@@ -21,6 +21,8 @@ const Calendar = () => {
     setModalOpen(true);
   };
 
+  console.log('users', user)
+
   const renderDays = () => {
     const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
     const days = [];

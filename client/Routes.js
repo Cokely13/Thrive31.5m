@@ -5,6 +5,7 @@ import { Login, Signup } from './components/AuthForm';
 import Home from './components/Home';
 import Calendar from './components/Calendar';
 import {me} from './store'
+import MyStats from './components/MyStats';
 
 /**
  * COMPONENT
@@ -23,6 +24,7 @@ class Routes extends Component {
           <Switch>
             <Route path="/home" component={Home} />
             <Route path="/calendar" component={Calendar} />
+            <Route path="/mystats" component={MyStats} />
             <Redirect to="/home" />
           </Switch>
         ) : (

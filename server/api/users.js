@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event } } = require('../db');
+const { models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Book, Goal } } = require('../db');
 module.exports = router;
 
 // GET all users
@@ -26,6 +26,8 @@ router.get('/:id', async (req, res, next) => {
         { model: StrengthTest },
         { model: CardioTest },
         { model: Event },
+        { model: Book },
+        { model: Goal},
       ],
     });
 
