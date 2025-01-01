@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {withRouter, Route, Switch, Redirect} from 'react-router-dom'
 import { Login, Signup } from './components/AuthForm';
 import Home from './components/Home';
+import Calendar from './components/Calendar';
 import {me} from './store'
 
 /**
@@ -21,6 +22,7 @@ class Routes extends Component {
         {isLoggedIn ? (
           <Switch>
             <Route path="/home" component={Home} />
+            <Route path="/calendar" component={Calendar} />
             <Redirect to="/home" />
           </Switch>
         ) : (
