@@ -6,6 +6,8 @@ import cardioStatsReducer from './allCardioStatsStore'
 import singleCardioStatReducer from './singleCardioStatStore';
 import strengthStatsReducer from './allStrengthStatsStore';
 import singleStrengthStatReducer from './singleStrengthStatStore';
+import usersReducer from './allUsersStore'
+import singleUserReducer from './singleUserStore'
 import auth from './auth'
 
 const reducer = combineReducers({ auth,
@@ -13,6 +15,8 @@ const reducer = combineReducers({ auth,
   singleCardioStat: singleCardioStatReducer,
   allStrengthStats: strengthStatsReducer,
   singleStrengthStat: singleStrengthStatReducer,
+  allUsers: usersReducer,
+  singleUser: singleUserReducer
  })
 const middleware = composeWithDevTools(
   applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))

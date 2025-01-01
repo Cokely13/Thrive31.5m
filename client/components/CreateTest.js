@@ -1,18 +1,24 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createCardioStat } from "../store/allCardioStatsStore"; // Import your thunk for CardioStats
-import { createStrengthStat } from "../store/allStrengthStatsStore"; // Import your thunk for StrengthStats
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { createCardioStat } from "../store/allCardioStatsStore";
+import { createStrengthStat } from "../store/allStrengthStatsStore";
+import { fetchSingleUser} from '../store/singleUserStore';
 
 const CreateTest = () => {
   const dispatch = useDispatch();
-
+  const { id } = useSelector((state) => state.auth);
   // Local state for form fields
   const [type, setType] = useState("cardio"); // Default to 'cardio'
   const [testType, setTestType] = useState(""); // e.g., 'mile', 'bench'
   const [result, setResult] = useState(""); // Result value
+  const [minutes, setMinutes] = useState(""); // For cardio result (minutes)
+  const [seconds, setSeconds] = useState(""); // For cardio result (seconds)
   const [effort, setEffort] = useState(""); // Effort on a 1-10 scale
   const [date, setDate] = useState(""); // Date of the test
-  const [userId, setUserId] = useState(""); // User ID (to associate with the test)
+
+  useEffect(() => {
+    dispatch(fetchSingleUser(id));
+  }, [dispatch, id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,10 +26,10 @@ const CreateTest = () => {
     // Create test object
     const test = {
       type: testType,
-      result,
+      result: type === "cardio" ? `${minutes}:${seconds}` : result,
       effort: parseInt(effort, 10),
       date,
-      userId: parseInt(userId, 10),
+      userId: id,
     };
 
     // Dispatch the appropriate thunk based on the test type
@@ -36,9 +42,10 @@ const CreateTest = () => {
     // Clear the form fields
     setTestType("");
     setResult("");
+    setMinutes("");
+    setSeconds("");
     setEffort("");
     setDate("");
-    setUserId("");
   };
 
   return (
@@ -68,13 +75,33 @@ const CreateTest = () => {
 
         <label>
           Result:
-          <input
-            type="text"
-            placeholder="e.g., 6:30 for cardio or 225 for strength"
-            value={result}
-            onChange={(e) => setResult(e.target.value)}
-            required
-          />
+          {type === "cardio" ? (
+            <div>
+              <input
+                type="number"
+                placeholder="Minutes"
+                value={minutes}
+                onChange={(e) => setMinutes(Math.max(0, e.target.value))}
+                required
+              />
+              :
+              <input
+                type="number"
+                placeholder="Seconds"
+                value={seconds}
+                onChange={(e) => setSeconds(Math.max(0, e.target.value))}
+                required
+              />
+            </div>
+          ) : (
+            <input
+              type="number"
+              placeholder="e.g., 225 for strength"
+              value={result}
+              onChange={(e) => setResult(Math.max(0, e.target.value))}
+              required
+            />
+          )}
         </label>
         <br />
 
@@ -97,18 +124,6 @@ const CreateTest = () => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </label>
-        <br />
-
-        <label>
-          User ID:
-          <input
-            type="number"
-            placeholder="Enter user ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
             required
           />
         </label>
