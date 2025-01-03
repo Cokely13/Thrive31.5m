@@ -11,6 +11,10 @@ import singleUserReducer from './singleUserStore'
 import auth from './auth'
 import singleEventReducer from './singleEventStore'
 import eventsReducer from './allEventsStore'
+import singleBookReducer from './singleBookStore'
+import booksReducer from './allBooksStore'
+import singleGoalReducer from './singleGoalStore'
+import goalsReducer from './allGoalsStore'
 
 const reducer = combineReducers({ auth,
   allCardioStats: cardioStatsReducer,
@@ -21,6 +25,10 @@ const reducer = combineReducers({ auth,
   singleUser: singleUserReducer,
   allEvents: eventsReducer,
   singleEvent: singleEventReducer,
+  singleBook: singleBookReducer,
+  allBooks: booksReducer,
+  singleGoal: singleGoalReducer,
+  allGoals: goalsReducer
  })
 const middleware = composeWithDevTools(
   applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))

@@ -21,8 +21,6 @@ const Calendar = () => {
     setModalOpen(true);
   };
 
-  console.log('users', user)
-
   const renderDays = () => {
     const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
     const days = [];
@@ -30,6 +28,7 @@ const Calendar = () => {
     for (let i = 1; i <= daysInMonth; i++) {
       const dayDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
       const dayString = dayDate.toISOString().split('T')[0];
+      const dayOfWeek = dayDate.toLocaleString('default', { weekday: 'short' });
 
       const dayEvents = user?.events?.filter((event) => event.date === dayString) || [];
       const dayTests = [
@@ -38,15 +37,58 @@ const Calendar = () => {
       ];
 
       days.push(
-        <div key={i} className="day" onClick={() => handleDateClick(dayDate)}>
+        <div
+          key={i}
+          className="day"
+          onClick={() => handleDateClick(dayDate)}
+          style={{
+            position: 'relative',
+            cursor: 'pointer',
+            padding: '10px',
+            border: '1px solid #ccc',
+            height: '100px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span style={{ fontWeight: 'bold' }}>{dayOfWeek}</span>
           <span>{i}</span>
+
+          {/* Event Indicators */}
           {dayEvents.map((event, index) => (
-            <div key={`event-${index}`} className="event-indicator" title={event.name}>
+            <div
+              key={`event-${index}`}
+              className="event-indicator"
+              style={{
+                backgroundColor: event.eventType === 'Workout' ? 'blue' : event.eventType === 'Race' ? 'red' : 'green',
+                margin: '2px',
+                padding: '2px',
+                borderRadius: '4px',
+                color: 'white',
+                fontSize: '0.8rem',
+              }}
+              title={event.name}
+            >
               {event.eventType}
             </div>
           ))}
+
+          {/* Test Indicators */}
           {dayTests.map((test, index) => (
-            <div key={`test-${index}`} className="test-indicator" title={`Type: ${test.type}, Effort: ${test.effort}`}>
+            <div
+              key={`test-${index}`}
+              className="test-indicator"
+              style={{
+                backgroundColor: test.type === 'mile' ? 'purple' : 'orange',
+                margin: '2px',
+                padding: '2px',
+                borderRadius: '4px',
+                color: 'white',
+                fontSize: '0.8rem',
+              }}
+              title={`Type: ${test.type}, Effort: ${test.effort}`}
+            >
               {test.type}
             </div>
           ))}
@@ -70,7 +112,9 @@ const Calendar = () => {
           &gt;
         </button>
       </header>
-      <div className="calendar-grid">{renderDays()}</div>
+      <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
+        {renderDays()}
+      </div>
       {isModalOpen && (
         <div className="modal">
           {/* Event Form */}

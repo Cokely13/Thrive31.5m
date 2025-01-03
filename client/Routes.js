@@ -6,6 +6,8 @@ import Home from './components/Home';
 import Calendar from './components/Calendar';
 import {me} from './store'
 import MyStats from './components/MyStats';
+import CreateTest from './components/CreateTest';
+import Rater from './components/Rater';
 
 /**
  * COMPONENT
@@ -25,6 +27,8 @@ class Routes extends Component {
             <Route path="/home" component={Home} />
             <Route path="/calendar" component={Calendar} />
             <Route path="/mystats" component={MyStats} />
+            <Route path="/rater" component={Rater} />
+            <Route path="/createtest" component={CreateTest} />
             <Redirect to="/home" />
           </Switch>
         ) : (
