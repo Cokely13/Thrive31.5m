@@ -1,6 +1,6 @@
 'use strict';
 
-const { db, models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event } } = require('../server/db');
+const { db, models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Day } } = require('../server/db');
 
 async function seed() {
   await db.sync({ force: true }); // clears db and matches models to tables
@@ -26,18 +26,22 @@ async function seed() {
 
   // Creating Strength Tests
   const strengthTests = await Promise.all([
-    StrengthTest.create({ userId: users[0].id, type: 'bench', result: 225, date: '2023-01-10', effort: 8 }),
-    StrengthTest.create({ userId: users[0].id, type: 'bench', result: 235, date: '2023-06-15', effort: 9 }),
-    StrengthTest.create({ userId: users[1].id, type: 'squat', result: 300, date: '2023-02-20', effort: 7 }),
-    StrengthTest.create({ userId: users[1].id, type: 'squat', result: 315, date: '2023-08-25', effort: 9 }),
+    StrengthTest.create({ userId: users[0].id, type: 'bench', result: 225, date: '2024-01-10', effort: 8 }),
+    StrengthTest.create({ userId: users[0].id, type: 'bench', result: 235, date: '2024-06-15', effort: 9 }),
+    StrengthTest.create({ userId: users[0].id, type: 'bench', result: 240, date: '2025-01-01', effort: 9 }),
+    StrengthTest.create({ userId: users[1].id, type: 'squat', result: 300, date: '2024-02-20', effort: 7 }),
+    StrengthTest.create({ userId: users[1].id, type: 'squat', result: 315, date: '2024-08-25', effort: 9 }),
+    StrengthTest.create({ userId: users[1].id, type: 'squat', result: 320, date: '2025-01-02', effort: 10 }),
   ]);
 
   // Creating Cardio Tests
   const cardioTests = await Promise.all([
-    CardioTest.create({ userId: users[0].id, type: 'mile', result: '6:40', date: '2023-03-05', effort: 7 }),
-    CardioTest.create({ userId: users[0].id, type: 'mile', result: '6:20', date: '2023-07-10', effort: 9 }),
-    CardioTest.create({ userId: users[1].id, type: '5k', result: '26:00', date: '2023-04-15', effort: 6 }),
-    CardioTest.create({ userId: users[1].id, type: '5k', result: '24:30', date: '2023-09-20', effort: 8 }),
+    CardioTest.create({ userId: users[0].id, type: 'mile', result: '6:40', date: '2024-03-05', effort: 7 }),
+    CardioTest.create({ userId: users[0].id, type: 'mile', result: '6:20', date: '2024-07-10', effort: 9 }),
+    CardioTest.create({ userId: users[0].id, type: 'mile', result: '6:15', date: '2025-01-01', effort: 8 }),
+    CardioTest.create({ userId: users[1].id, type: '5k', result: '26:00', date: '2024-04-15', effort: 6 }),
+    CardioTest.create({ userId: users[1].id, type: '5k', result: '24:30', date: '2024-09-20', effort: 8 }),
+    CardioTest.create({ userId: users[1].id, type: '5k', result: '23:50', date: '2025-01-02', effort: 9 }),
   ]);
 
   // Creating Events
@@ -76,6 +80,13 @@ async function seed() {
     }),
   ]);
 
+  // Creating Days
+  const days = await Promise.all([
+    Day.create({ userId: users[0].id, date: '2024-12-31', mood: 8, exercise: 7, goals: 6, sleep: 8, nutrition: 9 }),
+    Day.create({ userId: users[0].id, date: '2025-01-01', mood: 9, exercise: 8, goals: 7, sleep: 9, nutrition: 8 }),
+    Day.create({ userId: users[0].id, date: '2025-01-02', mood: 7, exercise: 9, goals: 8, sleep: 6, nutrition: 7 }),
+  ]);
+
   // Update StrengthStat Records
   for (const stat of strengthStats) {
     const maxResult = await StrengthTest.max('result', {
@@ -98,7 +109,10 @@ async function seed() {
     const minTime = Math.min(...times);
     const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length;
 
-    const formatTime = time => `${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`;
+    const formatTime = (time) => {
+      const roundedTime = Math.round(time); // Round to the nearest second
+      return `${Math.floor(roundedTime / 60)}:${String(roundedTime % 60).padStart(2, '0')}`;
+    };
 
     await stat.update({
       record: formatTime(minTime),
@@ -112,6 +126,7 @@ async function seed() {
   console.log(`seeded ${strengthTests.length} strength tests`);
   console.log(`seeded ${cardioTests.length} cardio tests`);
   console.log(`seeded ${events.length} events`);
+  console.log(`seeded ${days.length} days`);
   console.log('seeded successfully');
 
   return {
@@ -121,6 +136,7 @@ async function seed() {
     strengthTests,
     cardioTests,
     events,
+    days,
   };
 }
 

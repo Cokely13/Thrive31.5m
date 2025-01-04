@@ -21,6 +21,18 @@ const Calendar = () => {
     setModalOpen(true);
   };
 
+  const getDayCategoryColors = (dayRatings) => {
+    if (!dayRatings) return { mood: '#fff', exercise: '#fff', goals: '#fff', sleep: '#fff', nutrition: '#fff' };
+
+    return {
+      mood: dayRatings.mood <= 3 ? 'red' : dayRatings.mood <= 7 ? 'yellow' : 'green',
+      exercise: dayRatings.exercise <= 3 ? 'red' : dayRatings.exercise <= 7 ? 'yellow' : 'green',
+      goals: dayRatings.goals <= 3 ? 'red' : dayRatings.goals <= 7 ? 'yellow' : 'green',
+      sleep: dayRatings.sleep <= 3 ? 'red' : dayRatings.sleep <= 7 ? 'yellow' : 'green',
+      nutrition: dayRatings.nutrition <= 3 ? 'red' : dayRatings.nutrition <= 7 ? 'yellow' : 'green',
+    };
+  };
+
   const renderDays = () => {
     const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
     const days = [];
@@ -36,6 +48,9 @@ const Calendar = () => {
         ...(user?.cardioTests?.filter((test) => test.date === dayString) || []),
       ];
 
+      const dayRatings = user?.dayRatings?.find((rating) => rating.date === dayString) || null;
+      const colors = getDayCategoryColors(dayRatings);
+
       days.push(
         <div
           key={i}
@@ -46,16 +61,33 @@ const Calendar = () => {
             cursor: 'pointer',
             padding: '10px',
             border: '1px solid #ccc',
-            height: '100px',
+            height: '120px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            backgroundColor: colors.mood, // Default to mood for background
           }}
         >
           <span style={{ fontWeight: 'bold' }}>{dayOfWeek}</span>
           <span>{i}</span>
 
-          {/* Event Indicators */}
+          <div style={{ display: 'flex', gap: '2px', justifyContent: 'space-around' }}>
+            <div style={{ backgroundColor: colors.mood, width: '15px', height: '15px', borderRadius: '50%' }} title="Mood"></div>
+            <div
+              style={{ backgroundColor: colors.exercise, width: '15px', height: '15px', borderRadius: '50%' }}
+              title="Exercise"
+            ></div>
+            <div
+              style={{ backgroundColor: colors.goals, width: '15px', height: '15px', borderRadius: '50%' }}
+              title="Goals"
+            ></div>
+            <div style={{ backgroundColor: colors.sleep, width: '15px', height: '15px', borderRadius: '50%' }} title="Sleep"></div>
+            <div
+              style={{ backgroundColor: colors.nutrition, width: '15px', height: '15px', borderRadius: '50%' }}
+              title="Nutrition"
+            ></div>
+          </div>
+
           {dayEvents.map((event, index) => (
             <div
               key={`event-${index}`}
@@ -74,7 +106,6 @@ const Calendar = () => {
             </div>
           ))}
 
-          {/* Test Indicators */}
           {dayTests.map((test, index) => (
             <div
               key={`test-${index}`}
