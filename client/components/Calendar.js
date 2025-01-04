@@ -4,8 +4,8 @@ import { fetchSingleUser } from '../store/singleUserStore';
 
 const Calendar = () => {
   const dispatch = useDispatch();
-  const { id } = useSelector((state) => state.auth); // Get the logged-in user ID
-  const user = useSelector((state) => state.singleUser); // Assume single user is stored in Redux
+  const { id } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.singleUser);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setModalOpen] = useState(false);
 

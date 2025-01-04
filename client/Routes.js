@@ -8,6 +8,7 @@ import {me} from './store'
 import MyStats from './components/MyStats';
 import CreateTest from './components/CreateTest';
 import Rater from './components/Rater';
+import Day from './components/Day';
 
 /**
  * COMPONENT
@@ -28,6 +29,7 @@ class Routes extends Component {
             <Route path="/calendar" component={Calendar} />
             <Route path="/mystats" component={MyStats} />
             <Route path="/rater" component={Rater} />
+            <Route path="/day" component={Day} />
             <Route path="/createtest" component={CreateTest} />
             <Redirect to="/home" />
           </Switch>
