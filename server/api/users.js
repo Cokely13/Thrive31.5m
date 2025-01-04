@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Book, Goal } } = require('../db');
+const { models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Book, Goal, Day } } = require('../db');
+const Day = require('../db/models/Day');
 module.exports = router;
 
 // GET all users
@@ -28,6 +29,7 @@ router.get('/:id', async (req, res, next) => {
         { model: Event },
         { model: Book },
         { model: Goal},
+        { model: Day},
       ],
     });
 

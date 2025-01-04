@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { createDay } from '../store/allDaysStore';
 
 const Rater = () => {
+  const dispatch = useDispatch();
   const [ratings, setRatings] = useState({
     mood: 0,
     exercise: 0,
@@ -13,6 +16,20 @@ const Rater = () => {
     setRatings({
       ...ratings,
       [category]: value,
+    });
+  };
+
+  const handleSubmit = () => {
+    dispatch(createDay({
+      ...ratings,
+      date: new Date().toISOString().split('T')[0], // Adding the current date
+    }));
+    setRatings({
+      mood: 0,
+      exercise: 0,
+      goals: 0,
+      sleep: 0,
+      nutrition: 0,
     });
   };
 
@@ -35,7 +52,7 @@ const Rater = () => {
           />
         </div>
       ))}
-      <button className="submit-rating" onClick={() => console.log(ratings)}>
+      <button className="submit-rating" onClick={handleSubmit}>
         Submit
       </button>
     </div>

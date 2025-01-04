@@ -4,6 +4,7 @@ const CardioStat = require('./models/CardioStat');
 const StrengthTest = require('./models/StrengthTest');
 const CardioTest = require('./models/CardioTest');
 const Book = require('./models/Book');
+const Day = require('./models/Day');
 const Goal = require('./models/Goal');
 const Event = require('./models/Event')
 const User = require('./models/User');
@@ -35,6 +36,8 @@ Book.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Goal, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Goal.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasMany(Day, { foreignKey: 'userId', onDelete: 'CASCADE' });
+Day.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = {
   db,
@@ -46,6 +49,7 @@ module.exports = {
     CardioTest,
     Event,
     Book,
-    Goal
+    Goal,
+    Day
   },
 };
