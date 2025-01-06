@@ -30,7 +30,7 @@ const CreateEvent = () => {
       importance,
       userId: id,
     };
-
+        console.log("event", event)
     // Dispatch the create event thunk
     dispatch(createEvent(event));
 

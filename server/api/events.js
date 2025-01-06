@@ -1,6 +1,6 @@
 // Import necessary modules
 const router = require('express').Router();
-const { Event, User } = require('../db/models'); // Adjust path to models if needed
+const { models: { Event, User}} = require('../db'); // Adjust path to models if needed
 
 // GET /api/events - Get all events
 router.get('/', async (req, res, next) => {
@@ -32,6 +32,8 @@ router.get('/:id', async (req, res, next) => {
 
 // POST /api/events - Create a new event
 router.post('/', async (req, res, next) => {
+
+  console.log("CHEC!!!!")
   try {
     const { name, date, time, eventType, importance, userId } = req.body;
     const newEvent = await Event.create({ name, date, time, eventType, importance, userId });

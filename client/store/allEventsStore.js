@@ -23,6 +23,7 @@ export const fetchEvents = () => async (dispatch) => {
 };
 
 export const createEvent = (eventDetails) => async (dispatch) => {
+  console.log("HEY CREATE EVENT!", eventDetails)
   try {
     const { data: newEvent } = await axios.post('/api/events', eventDetails);
     dispatch(addEvent(newEvent));
