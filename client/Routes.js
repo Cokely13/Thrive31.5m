@@ -29,7 +29,7 @@ class Routes extends Component {
             <Route path="/calendar" component={Calendar} />
             <Route path="/mystats" component={MyStats} />
             <Route path="/rater" component={Rater} />
-            <Route path="/day/:dayId" component={Day} />
+            <Route path="/day/:date" component={Day} />
             <Route path="/createtest" component={CreateTest} />
             <Redirect to="/home" />
           </Switch>
