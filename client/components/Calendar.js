@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { fetchSingleUser } from '../store/singleUserStore';
 
 const Calendar = () => {
@@ -35,8 +36,25 @@ const Calendar = () => {
 
   const renderDays = () => {
     const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+    const firstDayIndex = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
     const days = [];
 
+    // Add blank spaces for days before the start of the month
+    for (let i = 0; i < firstDayIndex; i++) {
+      days.push(
+        <div
+          key={`blank-${i}`}
+          className="day blank"
+          style={{
+            border: '1px solid #ccc',
+            height: '120px',
+            backgroundColor: '#f9f9f9',
+          }}
+        ></div>
+      );
+    }
+
+    // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       const dayDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
       const dayString = dayDate.toISOString().split('T')[0];
@@ -55,7 +73,6 @@ const Calendar = () => {
         <div
           key={i}
           className="day"
-          onClick={() => handleDateClick(dayDate)}
           style={{
             position: 'relative',
             cursor: 'pointer',
@@ -68,8 +85,9 @@ const Calendar = () => {
             backgroundColor: colors.mood, // Default to mood for background
           }}
         >
-          <span style={{ fontWeight: 'bold' }}>{dayOfWeek}</span>
-          <span>{i}</span>
+          <Link to={`/day/${dayString}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <span style={{ fontWeight: 'bold' }}>{dayOfWeek}  {i}</span>
+          </Link>
 
           <div style={{ display: 'flex', gap: '2px', justifyContent: 'space-around' }}>
             <div style={{ backgroundColor: colors.mood, width: '15px', height: '15px', borderRadius: '50%' }} title="Mood"></div>
