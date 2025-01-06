@@ -31,7 +31,6 @@ router.post('/', async (req, res, next) => {
     const strengthStat = await StrengthStat.findOne({
       where: { userId: req.body.userId, type: req.body.type },
     });
-
     if (strengthStat) {
       // Update the record if the test result is higher
       if (test.result > strengthStat.record) {

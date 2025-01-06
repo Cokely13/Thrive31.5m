@@ -1,11 +1,12 @@
 // import React, { useEffect } from "react";
 // import { useDispatch, useSelector } from "react-redux";
-// import { useParams } from "react-router-dom";
+// import { useParams, useNavigate } from "react-router-dom";
 // import { fetchSingleUser } from "../store/singleUserStore";
 
 // const Day = () => {
-//   const { dayId } = useParams();
+//   const { date } = useParams(); // Use date from URL
 //   const dispatch = useDispatch();
+//   const navigate = useNavigate();
 //   const { id } = useSelector((state) => state.auth);
 //   const user = useSelector((state) => state.singleUser);
 
@@ -15,78 +16,83 @@
 //     }
 //   }, [dispatch, id]);
 
-//   console.log('day', dayId)
+//   const currentDay = user?.days?.find((day) => day.date === date);
 
-//   const currentDay = user?.days?.find((day) => day.id == dayId);
-
-//   console.log('user', user)
-
-//   if (!currentDay) {
-//     return <p>Day not found</p>;
-//   }
-
-//   const eventsForDay = user?.events?.filter((event) => event.date === currentDay.date) || [];
-//   const strengthTestsForDay = user?.strengthTests?.filter((test) => test.date === currentDay.date) || [];
-//   const cardioTestsForDay = user?.cardioTests?.filter((test) => test.date === currentDay.date) || [];
+//   const eventsForDay = user?.events?.filter((event) => event.date === date) || [];
+//   const strengthTestsForDay = user?.strengthTests?.filter((test) => test.date === date) || [];
+//   const cardioTestsForDay = user?.cardioTests?.filter((test) => test.date === date) || [];
 
 //   return (
 //     <div>
-//       <h2>Your Day: {currentDay.date}</h2>
+//       <h2>Your Day: {date}</h2>
 
-//       <div>
-//         <h3>Events</h3>
-//         {eventsForDay.length > 0 ? (
-//           <ul>
-//             {eventsForDay.map((event) => (
-//               <li key={event.id}>
-//                 <strong>{event.name}</strong> at {event.time}<br />
-//                 Type: {event.eventType}<br />
-//                 {event.description}
-//               </li>
-//             ))}
-//           </ul>
-//         ) : (
-//           <p>No events scheduled for this day.</p>
-//         )}
-//       </div>
+//       {currentDay ? (
+//         <>
+//           <div>
+//             <h3>Events</h3>
+//             {eventsForDay.length > 0 ? (
+//               <ul>
+//                 {eventsForDay.map((event) => (
+//                   <li key={event.id}>
+//                     <strong>{event.name}</strong> at {event.time}<br />
+//                     Type: {event.eventType}<br />
+//                     {event.description}
+//                   </li>
+//                 ))}
+//               </ul>
+//             ) : (
+//               <p>No events scheduled for this day.</p>
+//             )}
+//           </div>
 
-//       <div>
-//         <h3>Ratings</h3>
-//         <ul>
-//           <li><strong>Mood:</strong> {currentDay.mood}/10</li>
-//           <li><strong>Exercise:</strong> {currentDay.exercise}/10</li>
-//           <li><strong>Goals:</strong> {currentDay.goals}/10</li>
-//         </ul>
-//       </div>
+//           <div>
+//             <h3>Ratings</h3>
+//             <ul>
+//               <li><strong>Mood:</strong> {currentDay.mood}/10</li>
+//               <li><strong>Exercise:</strong> {currentDay.exercise}/10</li>
+//               <li><strong>Goals:</strong> {currentDay.goals}/10</li>
+//             </ul>
+//           </div>
 
-//       <div>
-//         <h3>Strength Tests</h3>
-//         {strengthTestsForDay.length > 0 ? (
-//           <ul>
-//             {strengthTestsForDay.map((test) => (
-//               <li key={test.id}>
-//                 <strong>{test.type}:</strong> {test.result} {test.unit || "lbs"} (Effort: {test.effort}/10)
-//               </li>
-//             ))}
-//           </ul>
-//         ) : (
-//           <p>No strength tests recorded for this day.</p>
-//         )}
-//       </div>
+//           <div>
+//             <h3>Strength Tests</h3>
+//             {strengthTestsForDay.length > 0 ? (
+//               <ul>
+//                 {strengthTestsForDay.map((test) => (
+//                   <li key={test.id}>
+//                     <strong>{test.type}:</strong> {test.result} {test.unit || "lbs"} (Effort: {test.effort}/10)
+//                   </li>
+//                 ))}
+//               </ul>
+//             ) : (
+//               <p>No strength tests recorded for this day.</p>
+//             )}
+//           </div>
 
-//       <div>
-//         <h3>Cardio Tests</h3>
-//         {cardioTestsForDay.length > 0 ? (
-//           <ul>
-//             {cardioTestsForDay.map((test) => (
-//               <li key={test.id}>
-//                 <strong>{test.type}:</strong> {test.result} (Effort: {test.effort}/10)
-//               </li>
-//             ))}
-//           </ul>
-//         ) : (
-//           <p>No cardio tests recorded for this day.</p>
-//         )}
+//           <div>
+//             <h3>Cardio Tests</h3>
+//             {cardioTestsForDay.length > 0 ? (
+//               <ul>
+//                 {cardioTestsForDay.map((test) => (
+//                   <li key={test.id}>
+//                     <strong>{test.type}:</strong> {test.result} (Effort: {test.effort}/10)
+//                   </li>
+//                 ))}
+//               </ul>
+//             ) : (
+//               <p>No cardio tests recorded for this day.</p>
+//             )}
+//           </div>
+//         </>
+//       ) : (
+//         <p>No ratings or tests recorded for this day yet.</p>
+//       )}
+
+//       <div style={{ marginTop: "20px" }}>
+//         <button onClick={() => navigate("/createtest")} style={{ marginRight: "10px" }}>
+//           Create Test
+//         </button>
+//         <button onClick={() => navigate("/createevent")}>Create Event</button>
 //       </div>
 //     </div>
 //   );
@@ -96,12 +102,13 @@
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom"; // useHistory instead of useNavigate
 import { fetchSingleUser } from "../store/singleUserStore";
 
 const Day = () => {
   const { date } = useParams(); // Use date from URL
   const dispatch = useDispatch();
+  const history = useHistory(); // Use history
   const { id } = useSelector((state) => state.auth);
   const user = useSelector((state) => state.singleUser);
 
@@ -113,72 +120,81 @@ const Day = () => {
 
   const currentDay = user?.days?.find((day) => day.date === date);
 
-  if (!currentDay) {
-    return <p>Day not found</p>;
-  }
-
   const eventsForDay = user?.events?.filter((event) => event.date === date) || [];
   const strengthTestsForDay = user?.strengthTests?.filter((test) => test.date === date) || [];
   const cardioTestsForDay = user?.cardioTests?.filter((test) => test.date === date) || [];
 
   return (
     <div>
-      <h2>Your Day: {currentDay.date}</h2>
+      <h2>Your Day: {date}</h2>
 
-      <div>
-        <h3>Events</h3>
-        {eventsForDay.length > 0 ? (
-          <ul>
-            {eventsForDay.map((event) => (
-              <li key={event.id}>
-                <strong>{event.name}</strong> at {event.time}<br />
-                Type: {event.eventType}<br />
-                {event.description}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No events scheduled for this day.</p>
-        )}
-      </div>
+      {currentDay ? (
+        <>
+          <div>
+            <h3>Events</h3>
+            {eventsForDay.length > 0 ? (
+              <ul>
+                {eventsForDay.map((event) => (
+                  <li key={event.id}>
+                    <strong>{event.name}</strong> at {event.time}<br />
+                    Type: {event.eventType}<br />
+                    {event.description}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No events scheduled for this day.</p>
+            )}
+          </div>
 
-      <div>
-        <h3>Ratings</h3>
-        <ul>
-          <li><strong>Mood:</strong> {currentDay.mood}/10</li>
-          <li><strong>Exercise:</strong> {currentDay.exercise}/10</li>
-          <li><strong>Goals:</strong> {currentDay.goals}/10</li>
-        </ul>
-      </div>
+          <div>
+            <h3>Ratings</h3>
+            <ul>
+              <li><strong>Mood:</strong> {currentDay.mood}/10</li>
+              <li><strong>Exercise:</strong> {currentDay.exercise}/10</li>
+              <li><strong>Goals:</strong> {currentDay.goals}/10</li>
+            </ul>
+          </div>
 
-      <div>
-        <h3>Strength Tests</h3>
-        {strengthTestsForDay.length > 0 ? (
-          <ul>
-            {strengthTestsForDay.map((test) => (
-              <li key={test.id}>
-                <strong>{test.type}:</strong> {test.result} {test.unit || "lbs"} (Effort: {test.effort}/10)
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No strength tests recorded for this day.</p>
-        )}
-      </div>
+          <div>
+            <h3>Strength Tests</h3>
+            {strengthTestsForDay.length > 0 ? (
+              <ul>
+                {strengthTestsForDay.map((test) => (
+                  <li key={test.id}>
+                    <strong>{test.type}:</strong> {test.result} {test.unit || "lbs"} (Effort: {test.effort}/10)
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No strength tests recorded for this day.</p>
+            )}
+          </div>
 
-      <div>
-        <h3>Cardio Tests</h3>
-        {cardioTestsForDay.length > 0 ? (
-          <ul>
-            {cardioTestsForDay.map((test) => (
-              <li key={test.id}>
-                <strong>{test.type}:</strong> {test.result} (Effort: {test.effort}/10)
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No cardio tests recorded for this day.</p>
-        )}
+          <div>
+            <h3>Cardio Tests</h3>
+            {cardioTestsForDay.length > 0 ? (
+              <ul>
+                {cardioTestsForDay.map((test) => (
+                  <li key={test.id}>
+                    <strong>{test.type}:</strong> {test.result} (Effort: {test.effort}/10)
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No cardio tests recorded for this day.</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <p>No ratings or tests recorded for this day yet.</p>
+      )}
+
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={() => history.push("/createtest")} style={{ marginRight: "10px" }}>
+          Create Test
+        </button>
+        <button onClick={() => history.push("/createevent")}>Create Event</button>
       </div>
     </div>
   );

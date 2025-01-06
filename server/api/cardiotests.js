@@ -39,6 +39,67 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+// router.post('/', async (req, res, next) => {
+//   try {
+//     // Create a new cardio test
+//     const test = await CardioTest.create(req.body);
+
+//     // Fetch all results of the same type for the user
+//     const allResults = await CardioTest.findAll({
+//       where: { userId: req.body.userId, type: req.body.type },
+//     });
+
+//     // Helper to convert "MM:SS" to seconds
+//     const toSeconds = (time) => {
+//       const [minutes, seconds] = time.split(':').map(Number);
+//       return minutes * 60 + seconds;
+//     };
+
+//     // Helper to convert seconds to "MM:SS"
+//     const toFormattedTime = (seconds) => {
+//       const mins = Math.floor(seconds / 60);
+//       const secs = seconds % 60;
+//       return `${mins}:${secs.toString().padStart(2, '0')}`;
+//     };
+
+//     // Calculate the minimum time (record)
+//     const minTime = allResults.reduce((min, test) => {
+//       const testTime = toSeconds(test.result);
+//       return testTime < min ? testTime : min;
+//     }, toSeconds(allResults[0].result));
+
+//     // Calculate the average time
+//     const avgTime =
+//       allResults.reduce((total, test) => total + toSeconds(test.result), 0) /
+//       allResults.length;
+
+//     const averageFormatted = toFormattedTime(avgTime);
+
+//     // Update or create the user's cardioStat
+//     const cardioStat = await CardioStat.findOne({
+//       where: { userId: req.body.userId, type: req.body.type },
+//     });
+
+//     if (cardioStat) {
+//       await cardioStat.update({
+//         record: toFormattedTime(minTime),
+//         averageTime: averageFormatted,
+//       });
+//     } else {
+//       await CardioStat.create({
+//         userId: req.body.userId,
+//         type: req.body.type,
+//         record: toFormattedTime(minTime),
+//         averageTime: averageFormatted,
+//       });
+//     }
+
+//     res.status(201).send(test);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
 // Update a cardio test by ID
 router.put('/:id', async (req, res, next) => {
   try {

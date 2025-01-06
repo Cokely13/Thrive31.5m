@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createCardioStat } from "../store/allCardioStatsStore";
-import { createStrengthStat } from "../store/allStrengthStatsStore";
-import { fetchSingleUser} from '../store/singleUserStore';
+import { createStrengthTest } from "../store/allStrengthTestsStore";
+import { createCardioTest } from "../store/allCardioTestsStore";
+import { fetchSingleUser } from "../store/singleUserStore";
 
 const CreateTest = () => {
   const dispatch = useDispatch();
   const { id } = useSelector((state) => state.auth);
+
   // Local state for form fields
   const [type, setType] = useState("cardio"); // Default to 'cardio'
   const [testType, setTestType] = useState(""); // e.g., 'mile', 'bench'
@@ -23,10 +24,37 @@ const CreateTest = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate inputs
+    if (!testType) {
+      alert("Please provide a test name.");
+      return;
+    }
+    if (type === "cardio" && (!minutes || !seconds)) {
+      alert("Please provide both minutes and seconds for cardio tests.");
+      return;
+    }
+    if (type === "strength" && !result) {
+      alert("Please provide a result for the strength test.");
+      return;
+    }
+    if (!effort || effort < 1 || effort > 10) {
+      alert("Please provide an effort level between 1 and 10.");
+      return;
+    }
+    if (!date) {
+      alert("Please select a date.");
+      return;
+    }
+
     // Create test object
+    const formattedResult =
+      type === "cardio"
+        ? `${minutes}:${String(seconds).padStart(2, "0")}` // Ensure seconds are zero-padded
+        : result;
+
     const test = {
       type: testType,
-      result: type === "cardio" ? `${minutes}:${seconds}` : result,
+      result: formattedResult,
       effort: parseInt(effort, 10),
       date,
       userId: id,
@@ -34,12 +62,13 @@ const CreateTest = () => {
 
     // Dispatch the appropriate thunk based on the test type
     if (type === "cardio") {
-      dispatch(createCardioStat(test));
+      dispatch(createCardioTest(test));
     } else if (type === "strength") {
-      dispatch(createStrengthStat(test));
+      dispatch(createStrengthTest(test));
     }
 
     // Clear the form fields
+    setType("cardio");
     setTestType("");
     setResult("");
     setMinutes("");

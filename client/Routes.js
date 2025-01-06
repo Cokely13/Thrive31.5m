@@ -9,6 +9,7 @@ import MyStats from './components/MyStats';
 import CreateTest from './components/CreateTest';
 import Rater from './components/Rater';
 import Day from './components/Day';
+import CreateEvent from './components/CreateEvent';
 
 /**
  * COMPONENT
@@ -31,6 +32,7 @@ class Routes extends Component {
             <Route path="/rater" component={Rater} />
             <Route path="/day/:date" component={Day} />
             <Route path="/createtest" component={CreateTest} />
+            <Route path="/createevent" component={CreateEvent} />
             <Redirect to="/home" />
           </Switch>
         ) : (
