@@ -9,6 +9,7 @@ const CreateEvent = () => {
 
   // Local state for form fields
   const [name, setName] = useState(""); // Event name
+  // const [description, setDescription] = useState(""); // Event name
   const [date, setDate] = useState(""); // Event date
   const [time, setTime] = useState(""); // Event time
   const [eventType, setEventType] = useState("Other"); // Event type
@@ -28,6 +29,7 @@ const CreateEvent = () => {
       time,
       eventType,
       importance,
+      // description,
       userId: id,
     };
         console.log("event", event)
@@ -36,6 +38,7 @@ const CreateEvent = () => {
 
     // Clear the form fields
     setName("");
+    // setDescription("");
     setDate("");
     setTime("");
     setEventType("Other");
@@ -109,6 +112,16 @@ const CreateEvent = () => {
           </select>
         </label>
         <br />
+        {/* <label>
+          Event Name:
+          <input
+            type="text"
+            placeholder=""
+            value={name}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </label> */}
 
         <button type="submit">Submit Event</button>
       </form>
