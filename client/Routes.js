@@ -10,6 +10,9 @@ import CreateTest from './components/CreateTest';
 import Rater from './components/Rater';
 import Day from './components/Day';
 import CreateEvent from './components/CreateEvent';
+import CardioTestDetails from './components/CardioTestDetails';
+import StrengthTestDetails from './components/StrengthTestDetails';
+import EventDetails from './components/EventDetails';
 
 /**
  * COMPONENT
@@ -31,6 +34,9 @@ class Routes extends Component {
             <Route path="/mystats" component={MyStats} />
             <Route path="/rater" component={Rater} />
             <Route path="/day/:date" component={Day} />
+            <Route path="/cardiotestdetails/:testId" component={CardioTestDetails} />
+            <Route path="/strengthtestdetails/:testId" component={StrengthTestDetails} />
+            <Route path="/eventdetails/:eventId" component={EventDetails} />
             <Route path="/createtest" component={CreateTest} />
             <Route path="/createevent" component={CreateEvent} />
             <Redirect to="/home" />

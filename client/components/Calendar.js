@@ -54,10 +54,12 @@ const Calendar = () => {
       );
     }
 
+    console.log('user', user)
+
     // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
-      const dayDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
-      const dayString = dayDate.toISOString().split('T')[0];
+      const dayDate = new Date(Date.UTC(selectedDate.getFullYear(), selectedDate.getMonth(), i));
+      const dayString = dayDate.toISOString().split('T')[0]; // Use UTC-based date string
       const dayOfWeek = dayDate.toLocaleString('default', { weekday: 'short' });
 
       const dayEvents = user?.events?.filter((event) => event.date === dayString) || [];
@@ -86,7 +88,7 @@ const Calendar = () => {
           }}
         >
           <Link to={`/day/${dayString}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <span style={{ fontWeight: 'bold' }}>{dayOfWeek}  {i}</span>
+            <span style={{ fontWeight: 'bold' }}>{dayOfWeek} {i}</span>
           </Link>
 
           <div style={{ display: 'flex', gap: '2px', justifyContent: 'space-around' }}>
@@ -107,39 +109,50 @@ const Calendar = () => {
           </div>
 
           {dayEvents.map((event, index) => (
-            <div
-              key={`event-${index}`}
-              className="event-indicator"
-              style={{
-                backgroundColor: event.eventType === 'Workout' ? 'blue' : event.eventType === 'Race' ? 'red' : 'green',
-                margin: '2px',
-                padding: '2px',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '0.8rem',
-              }}
-              title={event.name}
-            >
-              {event.eventType}
-            </div>
-          ))}
+  <Link to={`/eventdetails/${event.id}`} key={`event-${index}`} style={{ textDecoration: 'none' }}>
+    <div
+      className="event-indicator"
+      style={{
+        backgroundColor: event.eventType === 'Workout' ? 'blue' : event.eventType === 'Race' ? 'red' : 'green',
+        margin: '2px',
+        padding: '2px',
+        borderRadius: '4px',
+        color: 'white',
+        fontSize: '0.8rem',
+      }}
+      title={event.name}
+    >
+      {event.eventType}
+    </div>
+  </Link>
+))}
+
 
           {dayTests.map((test, index) => (
-            <div
+            <Link
+              to={
+                test.type === 'mile' || test.type === '5k'
+                  ? `/cardiotestdetails/${test.id}`
+                  : `/strengthtestdetails/${test.id}`
+              }
               key={`test-${index}`}
-              className="test-indicator"
-              style={{
-                backgroundColor: test.type === 'mile' ? 'purple' : 'orange',
-                margin: '2px',
-                padding: '2px',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '0.8rem',
-              }}
-              title={`Type: ${test.type}, Effort: ${test.effort}`}
+              style={{ textDecoration: 'none' }}
             >
-              {test.type}
-            </div>
+              <div
+                className="test-indicator"
+                style={{
+                  backgroundColor: test.type === 'mile' || test.type === '5k' ? 'purple' : 'orange',
+                  margin: '2px',
+                  padding: '2px',
+                  borderRadius: '4px',
+                  color: 'white',
+                  fontSize: '0.8rem',
+                }}
+                title={`Type: ${test.type}, Effort: ${test.effort}`}
+              >
+                {test.type}
+              </div>
+            </Link>
           ))}
         </div>
       );
@@ -147,6 +160,131 @@ const Calendar = () => {
 
     return days;
   };
+
+//   const renderDays = () => {
+//     const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+//     const firstDayIndex = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
+//     const days = [];
+
+//     // Add blank spaces for days before the start of the month
+//     for (let i = 0; i < firstDayIndex; i++) {
+//       days.push(
+//         <div
+//           key={`blank-${i}`}
+//           className="day blank"
+//           style={{
+//             border: '1px solid #ccc',
+//             height: '120px',
+//             backgroundColor: '#f9f9f9',
+//           }}
+//         ></div>
+//       );
+//     }
+
+//     // Add days of the month
+//     for (let i = 1; i <= daysInMonth; i++) {
+//       const dayDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
+//       const dayString = dayDate.toISOString().split('T')[0];
+//       const dayOfWeek = dayDate.toLocaleString('default', { weekday: 'short' });
+
+//       const dayEvents = user?.events?.filter((event) => event.date === dayString) || [];
+//       const dayTests = [
+//         ...(user?.strengthTests?.filter((test) => test.date === dayString) || []),
+//         ...(user?.cardioTests?.filter((test) => test.date === dayString) || []),
+//       ];
+
+//       const dayRatings = user?.dayRatings?.find((rating) => rating.date === dayString) || null;
+//       const colors = getDayCategoryColors(dayRatings);
+
+//       days.push(
+//         <div
+//           key={i}
+//           className="day"
+//           style={{
+//             position: 'relative',
+//             cursor: 'pointer',
+//             padding: '10px',
+//             border: '1px solid #ccc',
+//             height: '120px',
+//             display: 'flex',
+//             flexDirection: 'column',
+//             justifyContent: 'space-between',
+//             backgroundColor: colors.mood, // Default to mood for background
+//           }}
+//         >
+//           <Link to={`/day/${dayString}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+//             <span style={{ fontWeight: 'bold' }}>{dayOfWeek} {i}</span>
+//           </Link>
+
+//           <div style={{ display: 'flex', gap: '2px', justifyContent: 'space-around' }}>
+//             <div style={{ backgroundColor: colors.mood, width: '15px', height: '15px', borderRadius: '50%' }} title="Mood"></div>
+//             <div
+//               style={{ backgroundColor: colors.exercise, width: '15px', height: '15px', borderRadius: '50%' }}
+//               title="Exercise"
+//             ></div>
+//             <div
+//               style={{ backgroundColor: colors.goals, width: '15px', height: '15px', borderRadius: '50%' }}
+//               title="Goals"
+//             ></div>
+//             <div style={{ backgroundColor: colors.sleep, width: '15px', height: '15px', borderRadius: '50%' }} title="Sleep"></div>
+//             <div
+//               style={{ backgroundColor: colors.nutrition, width: '15px', height: '15px', borderRadius: '50%' }}
+//               title="Nutrition"
+//             ></div>
+//           </div>
+
+//           {dayEvents.map((event, index) => (
+//             <Link to={`/eventdetails/${event.id}`} key={`event-${index}`} style={{ textDecoration: 'none' }}>
+//               <div
+//                 className="event-indicator"
+//                 style={{
+//                   backgroundColor: event.eventType === 'Workout' ? 'blue' : event.eventType === 'Race' ? 'red' : 'green',
+//                   margin: '2px',
+//                   padding: '2px',
+//                   borderRadius: '4px',
+//                   color: 'white',
+//                   fontSize: '0.8rem',
+//                 }}
+//                 title={event.name}
+//               >
+//                 {event.eventType}
+//               </div>
+//             </Link>
+//           ))}
+
+// {dayTests.map((test, index) => (
+//   <Link
+//     to={
+//       test.type === 'mile' || test.type === '5k'
+//         ? `/cardiotestdetails/${test.id}`
+//         : `/strengthtestdetails/${test.id}`
+//     }
+//     key={`test-${index}`}
+//     style={{ textDecoration: 'none' }}
+//   >
+//     <div
+//       className="test-indicator"
+//       style={{
+//         backgroundColor: test.type === 'mile' || test.type === '5k' ? 'purple' : 'orange',
+//         margin: '2px',
+//         padding: '2px',
+//         borderRadius: '4px',
+//         color: 'white',
+//         fontSize: '0.8rem',
+//       }}
+//       title={`Type: ${test.type}, Effort: ${test.effort}`}
+//     >
+//       {test.type}
+//     </div>
+//   </Link>
+// ))}
+//         </div>
+//       );
+//     }
+
+//     return days;
+//   };
+
 
   return (
     <div className="calendar-container">
