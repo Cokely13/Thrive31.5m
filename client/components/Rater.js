@@ -1,9 +1,26 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createDay } from '../store/allDaysStore';
 
-const Rater = () => {
+const Rater = ({ onClose }) => {
   const dispatch = useDispatch();
+  const { id } = useSelector((state) => state.auth);
+
+  // Get yesterday's date in EST
+  const getYesterdayInEST = () => {
+    const now = new Date(); // Current time
+    const estDate = new Date(
+      now.toLocaleString('en-US', { timeZone: 'America/New_York' }) // Force EST
+    );
+    estDate.setDate(estDate.getDate() - 1); // Subtract 1 day
+    const year = estDate.getFullYear();
+    const month = String(estDate.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(estDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format as YYYY-MM-DD
+  };
+
+  const yesterdayString = getYesterdayInEST();
+
   const [ratings, setRatings] = useState({
     mood: 0,
     exercise: 0,
@@ -22,7 +39,8 @@ const Rater = () => {
   const handleSubmit = () => {
     dispatch(createDay({
       ...ratings,
-      date: new Date().toISOString().split('T')[0], // Adding the current date
+      date: yesterdayString, // Use yesterday's date in EST
+      userId: id,
     }));
     setRatings({
       mood: 0,
@@ -31,13 +49,14 @@ const Rater = () => {
       sleep: 0,
       nutrition: 0,
     });
+    onClose(); // Close modal after submission
   };
 
   const categories = ["mood", "exercise", "goals", "sleep", "nutrition"];
 
   return (
-    <div className="rater-container">
-      <h2>Rate Your Day</h2>
+    <div className="rater-modal">
+      <h2>Rate Yesterday: {yesterdayString}</h2>
       {categories.map((category) => (
         <div key={category} className="rating-category">
           <label htmlFor={category}>{category.charAt(0).toUpperCase() + category.slice(1)}:</label>

@@ -23,6 +23,8 @@
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "compression": "^1.7.3",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "express": "^4.16.4",
     "history": "^4.9.0",
     "jsonwebtoken": "^8.5.1",

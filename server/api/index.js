@@ -7,6 +7,7 @@ router.use('/cardiostats', require('./cardiostats'));
 router.use('/strengthtests', require('./strengthtests'));
 router.use('/cardiotests', require('./cardiotests'));
 router.use('/events', require('./events'));
+router.use('/days', require('./days'));
 
 // 404 error handling
 router.use((req, res, next) => {
