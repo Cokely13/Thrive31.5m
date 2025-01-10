@@ -27,6 +27,10 @@ const StrengthStat = db.define('strengthStat', {
     defaultValue: 'lbs',
     allowNull: false,
   },
+  min: {
+    type: Sequelize.FLOAT,
+    defaultValue: null
+  },
 });
 
 module.exports = StrengthStat;

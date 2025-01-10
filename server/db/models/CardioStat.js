@@ -33,6 +33,13 @@ const CardioStat = db.define('cardioStat', {
     defaultValue: 'minutes:seconds',
     allowNull: false,
   },
+  min: {
+    type: Sequelize.STRING,
+    defaultValue: null,
+    validate: {
+      is: /^\d+:\d{2}$/, // Validates "minutes:seconds" format
+    },
+  },
 });
 
 module.exports = CardioStat;
