@@ -1,53 +1,80 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchSingleUser } from "../store/singleUserStore";
-import { updateSingleCardioStat } from "../store/singleCardioStatStore";
 import { updateSingleStrengthStat } from "../store/singleStrengthStatStore";
+import { updateSingleCardioStat } from "../store/singleCardioStatStore";
 
 const MyStats = () => {
   const dispatch = useDispatch();
   const { id } = useSelector((state) => state.auth);
-
-  // Get user data from Redux store
   const user = useSelector((state) => state.singleUser);
 
-  // State for editing mins
-  const [editingMin, setEditingMin] = useState({});
-  const [newMin, setNewMin] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStat, setEditingStat] = useState(null);
+  const [formData, setFormData] = useState({
+    min: "",
+    minutes: "",
+    seconds: "",
+  });
 
   useEffect(() => {
     dispatch(fetchSingleUser(id));
   }, [dispatch, id]);
 
-  if (!user || !user.id) {
+  const handleEditClick = (stat) => {
+    setEditingStat(stat);
+    setIsEditing(true);
+
+    if (stat.type === "cardio") {
+      const [minutes, seconds] = stat.min ? stat.min.split(":") : ["", ""];
+      setFormData({
+        minutes: minutes || "",
+        seconds: seconds || "",
+        min: "",
+      });
+    } else {
+      setFormData({
+        min: stat.min || "",
+        minutes: "",
+        seconds: "",
+      });
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const updatedStat = {
+      id: editingStat.id,
+      min:
+        editingStat.type === "cardio"
+          ? `${formData.minutes || "0"}:${String(formData.seconds || "0").padStart(2, "0")}`
+          : formData.min,
+    };
+
+    if (editingStat.type === "cardio") {
+      dispatch(updateSingleCardioStat(updatedStat));
+    } else {
+      dispatch(updateSingleStrengthStat(updatedStat));
+    }
+
+    setIsEditing(false);
+    setEditingStat(null);
+  };
+
+  if (!user) {
     return <div>Loading...</div>;
   }
 
-  const handleEditClick = (statId, currentMin) => {
-    setEditingMin({ id: statId });
-    setNewMin(currentMin || "");
-  };
-
-  const handleSaveMin = async (statId, statType) => {
-    if (statType === "cardio") {
-      await dispatch(updateSingleCardioStat(statId, { min: newMin }));
-    } else if (statType === "strength") {
-      await dispatch(updateSingleStrengthStat(statId, { min: newMin }));
-    }
-    setEditingMin({});
-  };
-
-  // Calculate total completed tests
-  const completedTests = (user.strengthTests || []).length + (user.cardioTests || []).length;
-
-  // Calculate total books completed
-  const completedBooks = (user.books || []).filter((book) => book.completed).length;
-
-  // Calculate total goals completed
-  const completedGoals = (user.goals || []).filter((goal) => goal.status === "completed").length;
-
-  // Separate past and upcoming events
   const today = new Date();
+  const completedTests = (user.strengthTests || []).length + (user.cardioTests || []).length;
+  const completedBooks = (user.books || []).filter((book) => book.completed).length;
+  const completedGoals = (user.goals || []).filter((goal) => goal.status === "completed").length;
   const pastEvents = (user.events || []).filter((event) => new Date(event.date) < today);
   const upcomingEvents = (user.events || []).filter((event) => new Date(event.date) >= today);
 
@@ -55,58 +82,102 @@ const MyStats = () => {
     <div className="my-stats">
       <h1>{user.username}'s Stats</h1>
 
-      {/* Record Information */}
+      {/* Records Section */}
       <section>
         <h2>Records</h2>
         <ul>
           {(user.strengthStats || []).map((stat) => (
             <li key={stat.id}>
               {stat.type}: {stat.record} lbs
-              {stat.min && `, Min - ${stat.min}`}
-              {editingMin.id === stat.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={newMin}
-                    onChange={(e) => setNewMin(e.target.value)}
-                    placeholder="Set min (e.g., 100 lbs)"
-                  />
-                  <button onClick={() => handleSaveMin(stat.id, "strength")}>Save</button>
-                  <button onClick={() => setEditingMin({})}>Cancel</button>
-                </>
-              ) : (
-                <button onClick={() => handleEditClick(stat.id, stat.min)}>
-                  {stat.min ? "Change Min" : "Set Min"}
-                </button>
-              )}
             </li>
           ))}
           {(user.cardioStats || []).map((stat) => (
             <li key={stat.id}>
               {stat.type}: {stat.record} (avg: {stat.averageTime})
-              {stat.min && `, Min - ${stat.min}`}
-              {editingMin.id === stat.id ? (
-                <>
-                  <input
-                    type="text"
-                    value={newMin}
-                    onChange={(e) => setNewMin(e.target.value)}
-                    placeholder="Set min (e.g., 7:30)"
-                  />
-                  <button onClick={() => handleSaveMin(stat.id, "cardio")}>Save</button>
-                  <button onClick={() => setEditingMin({})}>Cancel</button>
-                </>
-              ) : (
-                <button onClick={() => handleEditClick(stat.id, stat.min)}>
-                  {stat.min ? "Change Min" : "Set Min"}
-                </button>
-              )}
             </li>
           ))}
         </ul>
       </section>
 
-      {/* Books */}
+      {/* Minimums Section */}
+      <section>
+        <h2>Minimums</h2>
+        {isEditing && editingStat ? (
+          <form onSubmit={handleSubmit}>
+            <h3>Editing {editingStat.type} Minimum</h3>
+            {editingStat.type === "cardio" ? (
+              // <div>
+
+              //   <input
+              //     type="number"
+              //     placeholder="Minutes"
+              //     value={formData.minutes}
+              //     onChange={(e) => setFormData({ ...formData, minutes: Math.max(0, e.target.value) })}
+              //     required
+              //   />
+              //   :
+              //   <input
+              //     type="number"
+              //     placeholder="Seconds"
+              //     value={formData.seconds}
+              //     onChange={(e) => setFormData({ ...formData, seconds: Math.max(0, e.target.value) })}
+              //     required
+              //   />
+              // </div>
+              <div>
+              <input
+              type="number"
+              placeholder="Minutes"
+              value={minutes}
+              onChange={(e) => setFormData({ ...formData, minutes: Math.max(0, e.target.value) })}
+              required
+            />
+            :
+            <input
+              type="number"
+              placeholder="Seconds"
+              value={seconds}
+              onChange={(e) => setFormData({ ...formData, seconds: Math.max(0, e.target.value) })}
+              required
+            />
+          </div>
+            ) : (
+              <label>
+                Minimum:
+                <input
+                  type="number"
+                  name="min"
+                  value={formData.min}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+            )}
+            <br />
+            <button type="submit">Save</button>
+            <button type="button" onClick={() => setIsEditing(false)}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <ul>
+            {(user.strengthStats || []).map((stat) => (
+              <li key={stat.id}>
+                {stat.type}: {stat.min || "0"} lbs
+                <button onClick={() => handleEditClick(stat)}>Edit</button>
+              </li>
+            ))}
+            {(user.cardioStats || []).map((stat) => (
+              <li key={stat.id}>
+                {stat.type}: {stat.min || "0"}
+                <button onClick={() => handleEditClick(stat)}>Edit</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Books Section */}
       <section>
         <h2>Books</h2>
         <p>Completed: {completedBooks}</p>
@@ -119,7 +190,7 @@ const MyStats = () => {
         </ul>
       </section>
 
-      {/* Goals */}
+      {/* Goals Section */}
       <section>
         <h2>Goals</h2>
         <p>Completed: {completedGoals}</p>
@@ -132,7 +203,7 @@ const MyStats = () => {
         </ul>
       </section>
 
-      {/* Tests */}
+      {/* Tests Section */}
       <section>
         <h2>Tests</h2>
         <p>Completed Tests: {completedTests}</p>
@@ -150,7 +221,7 @@ const MyStats = () => {
         </ul>
       </section>
 
-      {/* Events */}
+      {/* Events Section */}
       <section>
         <h2>Events</h2>
         <p>Past Events: {pastEvents.length}</p>
