@@ -23,16 +23,13 @@ const Calendar = () => {
     setModalOpen(true);
   };
 
-  const getDayCategoryColors = (dayRatings) => {
-    if (!dayRatings) return { mood: '#fff', exercise: '#fff', goals: '#fff', sleep: '#fff', nutrition: '#fff' };
+  console.log("users", user)
 
-    return {
-      mood: dayRatings.mood <= 3 ? 'red' : dayRatings.mood <= 7 ? 'yellow' : 'green',
-      exercise: dayRatings.exercise <= 3 ? 'red' : dayRatings.exercise <= 7 ? 'yellow' : 'green',
-      goals: dayRatings.goals <= 3 ? 'red' : dayRatings.goals <= 7 ? 'yellow' : 'green',
-      sleep: dayRatings.sleep <= 3 ? 'red' : dayRatings.sleep <= 7 ? 'yellow' : 'green',
-      nutrition: dayRatings.nutrition <= 3 ? 'red' : dayRatings.nutrition <= 7 ? 'yellow' : 'green',
-    };
+  const getMoodBackgroundColor = (mood) => {
+    if (mood >= 1 && mood <= 3) return '#d3d3d3'; // Light Gray
+    if (mood >= 4 && mood <= 6) return '#add8e6'; // Light Blue
+    if (mood >= 7 && mood <= 10) return '#ffffe0'; // Light Yellow
+    return '#fff'; // Default
   };
 
   const renderDays = () => {
@@ -63,14 +60,14 @@ const Calendar = () => {
       const dayString = dayDate.toISOString().split('T')[0]; // Use UTC-based date string
       const dayOfWeek = dayDate.toLocaleString('default', { weekday: 'short' });
 
+      const dayRatings = user?.days?.find((day) => day.date === dayString) || null;
+      const moodBackgroundColor = dayRatings ? getMoodBackgroundColor(dayRatings.mood) : '#fff';
+
       const dayEvents = user?.events?.filter((event) => event.date === dayString) || [];
       const dayTests = [
         ...(user?.strengthTests?.filter((test) => test.date === dayString) || []),
         ...(user?.cardioTests?.filter((test) => test.date === dayString) || []),
       ];
-
-      const dayRatings = user?.dayRatings?.find((rating) => rating.date === dayString) || null;
-      const colors = getDayCategoryColors(dayRatings);
 
       days.push(
         <div
@@ -85,29 +82,14 @@ const Calendar = () => {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backgroundColor: colors.mood, // Default to mood for background
+            backgroundColor: moodBackgroundColor, // Mood-based background color
           }}
         >
           <Link to={`/day/${dayString}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <span style={{ fontWeight: 'bold' }}>{dayOfWeek} {i}</span>
           </Link>
 
-          <div style={{ display: 'flex', gap: '2px', justifyContent: 'space-around' }}>
-            <div style={{ backgroundColor: colors.mood, width: '15px', height: '15px', borderRadius: '50%' }} title="Mood"></div>
-            <div
-              style={{ backgroundColor: colors.exercise, width: '15px', height: '15px', borderRadius: '50%' }}
-              title="Exercise"
-            ></div>
-            <div
-              style={{ backgroundColor: colors.goals, width: '15px', height: '15px', borderRadius: '50%' }}
-              title="Goals"
-            ></div>
-            <div style={{ backgroundColor: colors.sleep, width: '15px', height: '15px', borderRadius: '50%' }} title="Sleep"></div>
-            <div
-              style={{ backgroundColor: colors.nutrition, width: '15px', height: '15px', borderRadius: '50%' }}
-              title="Nutrition"
-            ></div>
-          </div>
+          {dayRatings && <span style={{ fontSize: '0.9rem', color: 'gray' }}>Rated</span>}
 
           {dayEvents.map((event, index) => (
             <Link to={`/eventdetails/${event.id}`} key={`event-${index}`} style={{ textDecoration: 'none' }}>
@@ -161,26 +143,22 @@ const Calendar = () => {
     return days;
   };
 
-  const renderKeyModal = () => (
-    <div className="modal">
-      <h4>Color Key</h4>
-      <ul style={{ listStyleType: 'none', padding: '0', margin: '0' }}>
-        <li><span style={{ backgroundColor: 'blue', display: 'inline-block', width: '10px', height: '10px', marginRight: '5px' }}></span>Workout</li>
-        <li><span style={{ backgroundColor: 'red', display: 'inline-block', width: '10px', height: '10px', marginRight: '5px' }}></span>Race</li>
-        <li><span style={{ backgroundColor: 'green', display: 'inline-block', width: '10px', height: '10px', marginRight: '5px' }}></span>Other</li>
-        <li><span style={{ backgroundColor: 'purple', display: 'inline-block', width: '10px', height: '10px', marginRight: '5px' }}></span>Mile/5k Test</li>
-        <li><span style={{ backgroundColor: 'orange', display: 'inline-block', width: '10px', height: '10px', marginRight: '5px' }}></span>Strength Test</li>
-      </ul>
-      <button onClick={() => setKeyModalOpen(false)}>Close</button>
-    </div>
-  );
-
   return (
     <div className="calendar-container" style={{ position: 'relative' }}>
       <button onClick={() => setKeyModalOpen(true)} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: '1' }}>
         See Key
       </button>
-      {isKeyModalOpen && renderKeyModal()}
+      {isKeyModalOpen && (
+        <div className="modal">
+          <h4>Color Key</h4>
+          <ul>
+            <li>Light Gray: Mood 1-3</li>
+            <li>Light Blue: Mood 4-6</li>
+            <li>Light Yellow: Mood 7-10</li>
+          </ul>
+          <button onClick={() => setKeyModalOpen(false)}>Close</button>
+        </div>
+      )}
       <header className="calendar-header">
         <button onClick={() => setSelectedDate(new Date(selectedDate.setMonth(selectedDate.getMonth() - 1)))}>
           &lt;
@@ -195,14 +173,6 @@ const Calendar = () => {
       <div className="calendar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
         {renderDays()}
       </div>
-      {isModalOpen && (
-        <div className="modal">
-          {/* Event Form */}
-          <h3>Add Event for {selectedDate.toDateString()}</h3>
-          <button onClick={() => setModalOpen(false)}>Close</button>
-          {/* Form component here */}
-        </div>
-      )}
     </div>
   );
 };
