@@ -1,6 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchSingleUser} from '../store/singleUserStore';
+import { fetchSingleUser } from "../store/singleUserStore";
+import { updateSingleCardioStat } from "../store/singleCardioStatStore";
+import { updateSingleStrengthStat } from "../store/singleStrengthStatStore";
 
 const MyStats = () => {
   const dispatch = useDispatch();
@@ -9,16 +11,31 @@ const MyStats = () => {
   // Get user data from Redux store
   const user = useSelector((state) => state.singleUser);
 
-  console.log('user', user)
+  // State for editing mins
+  const [editingMin, setEditingMin] = useState({});
+  const [newMin, setNewMin] = useState("");
 
-  // Load user data on component mount
   useEffect(() => {
-     dispatch(fetchSingleUser(id));
-   }, [dispatch, id]);
+    dispatch(fetchSingleUser(id));
+  }, [dispatch, id]);
 
   if (!user || !user.id) {
     return <div>Loading...</div>;
   }
+
+  const handleEditClick = (statId, currentMin) => {
+    setEditingMin({ id: statId });
+    setNewMin(currentMin || "");
+  };
+
+  const handleSaveMin = async (statId, statType) => {
+    if (statType === "cardio") {
+      await dispatch(updateSingleCardioStat(statId, { min: newMin }));
+    } else if (statType === "strength") {
+      await dispatch(updateSingleStrengthStat(statId, { min: newMin }));
+    }
+    setEditingMin({});
+  };
 
   // Calculate total completed tests
   const completedTests = (user.strengthTests || []).length + (user.cardioTests || []).length;
@@ -45,11 +62,45 @@ const MyStats = () => {
           {(user.strengthStats || []).map((stat) => (
             <li key={stat.id}>
               {stat.type}: {stat.record} lbs
+              {stat.min && `, Min - ${stat.min}`}
+              {editingMin.id === stat.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={newMin}
+                    onChange={(e) => setNewMin(e.target.value)}
+                    placeholder="Set min (e.g., 100 lbs)"
+                  />
+                  <button onClick={() => handleSaveMin(stat.id, "strength")}>Save</button>
+                  <button onClick={() => setEditingMin({})}>Cancel</button>
+                </>
+              ) : (
+                <button onClick={() => handleEditClick(stat.id, stat.min)}>
+                  {stat.min ? "Change Min" : "Set Min"}
+                </button>
+              )}
             </li>
           ))}
           {(user.cardioStats || []).map((stat) => (
             <li key={stat.id}>
               {stat.type}: {stat.record} (avg: {stat.averageTime})
+              {stat.min && `, Min - ${stat.min}`}
+              {editingMin.id === stat.id ? (
+                <>
+                  <input
+                    type="text"
+                    value={newMin}
+                    onChange={(e) => setNewMin(e.target.value)}
+                    placeholder="Set min (e.g., 7:30)"
+                  />
+                  <button onClick={() => handleSaveMin(stat.id, "cardio")}>Save</button>
+                  <button onClick={() => setEditingMin({})}>Cancel</button>
+                </>
+              ) : (
+                <button onClick={() => handleEditClick(stat.id, stat.min)}>
+                  {stat.min ? "Change Min" : "Set Min"}
+                </button>
+              )}
             </li>
           ))}
         </ul>
