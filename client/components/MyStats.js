@@ -9,62 +9,57 @@ const MyStats = () => {
   const { id } = useSelector((state) => state.auth);
   const user = useSelector((state) => state.singleUser);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingStat, setEditingStat] = useState(null);
-  const [formData, setFormData] = useState({
-    min: "",
-    minutes: "",
-    seconds: "",
-  });
+  const [isEditingCardio, setIsEditingCardio] = useState(false);
+  const [editingCardioStat, setEditingCardioStat] = useState(null);
+  const [minutes, setMinutes] = useState("");
+  const [seconds, setSeconds] = useState("");
+
+  const [isEditingStrength, setIsEditingStrength] = useState(false);
+  const [editingStrengthStat, setEditingStrengthStat] = useState(null);
+  const [min, setMin] = useState("");
 
   useEffect(() => {
     dispatch(fetchSingleUser(id));
   }, [dispatch, id]);
 
-  const handleEditClick = (stat) => {
-    setEditingStat(stat);
-    setIsEditing(true);
-
-    if (stat.type === "cardio") {
-      const [minutes, seconds] = stat.min ? stat.min.split(":") : ["", ""];
-      setFormData({
-        minutes: minutes || "",
-        seconds: seconds || "",
-        min: "",
-      });
-    } else {
-      setFormData({
-        min: stat.min || "",
-        minutes: "",
-        seconds: "",
-      });
-    }
+  const handleEditCardioClick = (stat) => {
+    setEditingCardioStat(stat);
+    setIsEditingCardio(true);
+    const [minMinutes, minSeconds] = stat.min ? stat.min.split(":") : ["", ""];
+    setMinutes(minMinutes || "0");
+    setSeconds(minSeconds || "0");
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleEditStrengthClick = (stat) => {
+    setEditingStrengthStat(stat);
+    setIsEditingStrength(true);
+    setMin(stat.min || "0");
   };
 
-  const handleSubmit = (e) => {
+  const handleCardioSubmit = (e) => {
     e.preventDefault();
 
     const updatedStat = {
-      id: editingStat.id,
-      min:
-        editingStat.type === "cardio"
-          ? `${formData.minutes || "0"}:${String(formData.seconds || "0").padStart(2, "0")}`
-          : formData.min,
+      id: editingCardioStat.id,
+      min: `${minutes}:${String(seconds).padStart(2, "0")}`,
     };
 
-    if (editingStat.type === "cardio") {
-      dispatch(updateSingleCardioStat(updatedStat));
-    } else {
-      dispatch(updateSingleStrengthStat(updatedStat));
-    }
+    dispatch(updateSingleCardioStat(updatedStat));
+    setIsEditingCardio(false);
+    setEditingCardioStat(null);
+  };
 
-    setIsEditing(false);
-    setEditingStat(null);
+  const handleStrengthSubmit = (e) => {
+    e.preventDefault();
+
+    const updatedStat = {
+      id: editingStrengthStat.id,
+      min,
+    };
+
+    dispatch(updateSingleStrengthStat(updatedStat));
+    setIsEditingStrength(false);
+    setEditingStrengthStat(null);
   };
 
   if (!user) {
@@ -99,63 +94,65 @@ const MyStats = () => {
         </ul>
       </section>
 
-      {/* Minimums Section */}
+      {/* Cardio Minimums Section */}
       <section>
-        <h2>Minimums</h2>
-        {isEditing && editingStat ? (
-          <form onSubmit={handleSubmit}>
-            <h3>Editing {editingStat.type} Minimum</h3>
-            {editingStat.type === "cardio" ? (
-              // <div>
-
-              //   <input
-              //     type="number"
-              //     placeholder="Minutes"
-              //     value={formData.minutes}
-              //     onChange={(e) => setFormData({ ...formData, minutes: Math.max(0, e.target.value) })}
-              //     required
-              //   />
-              //   :
-              //   <input
-              //     type="number"
-              //     placeholder="Seconds"
-              //     value={formData.seconds}
-              //     onChange={(e) => setFormData({ ...formData, seconds: Math.max(0, e.target.value) })}
-              //     required
-              //   />
-              // </div>
-              <div>
+        <h2>Cardio Minimums</h2>
+        {isEditingCardio && editingCardioStat ? (
+          <form onSubmit={handleCardioSubmit}>
+            <h3>Editing {editingCardioStat.type} Minimum</h3>
+            <div>
               <input
-              type="number"
-              placeholder="Minutes"
-              value={minutes}
-              onChange={(e) => setFormData({ ...formData, minutes: Math.max(0, e.target.value) })}
-              required
-            />
-            :
-            <input
-              type="number"
-              placeholder="Seconds"
-              value={seconds}
-              onChange={(e) => setFormData({ ...formData, seconds: Math.max(0, e.target.value) })}
-              required
-            />
-          </div>
-            ) : (
-              <label>
-                Minimum:
-                <input
-                  type="number"
-                  name="min"
-                  value={formData.min}
-                  onChange={handleChange}
-                  required
-                />
-              </label>
-            )}
+                type="number"
+                placeholder="Minutes"
+                value={minutes}
+                onChange={(e) => setMinutes(Math.max(0, e.target.value))}
+                required
+              />
+              :
+              <input
+                type="number"
+                placeholder="Seconds"
+                value={seconds}
+                onChange={(e) => setSeconds(Math.max(0, e.target.value))}
+                required
+              />
+            </div>
             <br />
             <button type="submit">Save</button>
-            <button type="button" onClick={() => setIsEditing(false)}>
+            <button type="button" onClick={() => setIsEditingCardio(false)}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <ul>
+            {(user.cardioStats || []).map((stat) => (
+              <li key={stat.id}>
+                {stat.type}: {stat.min || "0"}
+                <button onClick={() => handleEditCardioClick(stat)}>Edit</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Strength Minimums Section */}
+      <section>
+        <h2>Strength Minimums</h2>
+        {isEditingStrength && editingStrengthStat ? (
+          <form onSubmit={handleStrengthSubmit}>
+            <h3>Editing {editingStrengthStat.type} Minimum</h3>
+            <label>
+              Minimum:
+              <input
+                type="number"
+                value={min}
+                onChange={(e) => setMin(Math.max(0, e.target.value))}
+                required
+              />
+            </label>
+            <br />
+            <button type="submit">Save</button>
+            <button type="button" onClick={() => setIsEditingStrength(false)}>
               Cancel
             </button>
           </form>
@@ -164,13 +161,7 @@ const MyStats = () => {
             {(user.strengthStats || []).map((stat) => (
               <li key={stat.id}>
                 {stat.type}: {stat.min || "0"} lbs
-                <button onClick={() => handleEditClick(stat)}>Edit</button>
-              </li>
-            ))}
-            {(user.cardioStats || []).map((stat) => (
-              <li key={stat.id}>
-                {stat.type}: {stat.min || "0"}
-                <button onClick={() => handleEditClick(stat)}>Edit</button>
+                <button onClick={() => handleEditStrengthClick(stat)}>Edit</button>
               </li>
             ))}
           </ul>

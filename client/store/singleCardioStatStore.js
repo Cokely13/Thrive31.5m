@@ -32,21 +32,17 @@ export const fetchSingleCardioStat = (id) => {
   };
 };
 
-export const updateSingleCardioStat = (formData) => {
+export const updateSingleCardioStat = (cardioStat) => {
   return async (dispatch) => {
     try {
-      // Make sure to pass the formData directly to axios.put
-      await axios.put(`/api/cardiostats/${formData.get('id')}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Update the cardioStat in the backend
+      await axios.put(`/api/cardiostats/${cardioStat.id}`, cardioStat);
 
-      // Fetch the updated CardioStat data
-      const { data: cardioStatData } = await axios.get(`/api/cardiostats/${formData.get('id')}`);
-      dispatch(_updateSingleCardioStat(cardioStatData));
+      // Fetch the updated cardioStat data
+      const { data: updatedCardioStat } = await axios.get(`/api/cardiostats/${cardioStat.id}`);
+      dispatch(_updateSingleCardioStat(updatedCardioStat));
     } catch (error) {
-      console.error('Failed to update CardioStat:', error);
+      console.error("Failed to update CardioStat:", error);
     }
   };
 };
