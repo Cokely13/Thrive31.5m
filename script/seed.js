@@ -1,15 +1,52 @@
 'use strict';
 
-const { db, models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Day } } = require('../server/db');
+const { db, models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Day, Race } } = require('../server/db');
 
 async function seed() {
   await db.sync({ force: true }); // clears db and matches models to tables
   console.log('db synced!');
 
+  const API_KEY = 'udx9nyz6kwvh434tgxyhvymt';
+
+    // Fetch races from Active.com API
+    const fetchRaces = async () => {
+      try {
+        const response = await axios.get('https://api.amp.active.com/v2/search', {
+          params: {
+            query: '', // Leave blank for all types of races
+            start_date: `${new Date().toISOString().split('T')[0]}..${new Date(
+              new Date().setMonth(new Date().getMonth() + 6)
+            ).toISOString().split('T')[0]}`, // Today's date to 6 months ahead
+            near: 'Massachusetts',
+            api_key: API_KEY,
+          },
+        });
+
+        return response.data.results.map((race) => ({
+          name: race.assetName,
+          date: new Date(race.activityStartDate),
+          location: `${race.place?.cityName || 'Unknown'}, ${race.place?.stateProvinceCode || ''}`,
+          url: race.registrationUrlAdr,
+          type: race.assetAttributes?.[0]?.attributeValue || 'Unknown', // Type, if available
+          distance: race.assetAttributes?.[1]?.attributeValue || 'Unknown', // Distance, if available
+        }));
+      } catch (err) {
+        console.error('Error fetching races:', err);
+        return [];
+      }
+    };
+
+    // Fetch and create races
+    const racesData = await fetchRaces();
+    const races = await Promise.all(
+      racesData.map((raceData) => Race.create(raceData))
+    );
+
+
   // Creating Users
   const users = await Promise.all([
-    User.create({ username: 'cody', password: '123' }),
-    User.create({ username: 'murphy', password: '123' }),
+    User.create({ username: 'ryan', password: '123' }),
+    User.create({ username: 'scott', password: '123' }),
   ]);
 
   // Creating Strength Stats

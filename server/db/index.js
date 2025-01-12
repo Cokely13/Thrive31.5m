@@ -5,6 +5,7 @@ const StrengthTest = require('./models/StrengthTest');
 const CardioTest = require('./models/CardioTest');
 const Book = require('./models/Book');
 const Day = require('./models/Day');
+const Race = require('./models/Race');
 const Goal = require('./models/Goal');
 const Event = require('./models/Event')
 const User = require('./models/User');
@@ -50,6 +51,7 @@ module.exports = {
     Event,
     Book,
     Goal,
-    Day
+    Day,
+    Race
   },
 };
