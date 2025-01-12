@@ -1,5 +1,6 @@
 'use strict';
 
+const axios = require('axios');
 const { db, models: { User, StrengthStat, CardioStat, StrengthTest, CardioTest, Event, Day, Race } } = require('../server/db');
 
 async function seed() {

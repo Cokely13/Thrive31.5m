@@ -16,10 +16,10 @@ const Race = db.define('race', {
   },
   url: {
     type: Sequelize.STRING,
-    validate: {
-      isUrl: true, // Ensures it's a valid URL
-    },
-    allowNull: true, // URL is optional
+    // validate: {
+    //   isUrl: true, // Validate only if the URL is provided
+    // },
+    allowNull: true, // Allow null values
   },
   type: {
     type: Sequelize.STRING,
