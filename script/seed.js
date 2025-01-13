@@ -9,33 +9,36 @@ async function seed() {
 
   const API_KEY = 'udx9nyz6kwvh434tgxyhvymt';
 
-    // Fetch races from Active.com API
-    const fetchRaces = async () => {
-      try {
-        const response = await axios.get('https://api.amp.active.com/v2/search', {
-          params: {
-            query: '', // Leave blank for all types of races
-            start_date: `${new Date().toISOString().split('T')[0]}..${new Date(
-              new Date().setMonth(new Date().getMonth() + 6)
-            ).toISOString().split('T')[0]}`, // Today's date to 6 months ahead
-            near: 'Massachusetts',
-            api_key: API_KEY,
-          },
-        });
+  const fetchRaces = async () => {
+    try {
+      const response = await axios.get('https://api.amp.active.com/v2/search', {
+        params: {
+          query: 'marathon', // Narrow the query to marathons
+          start_date: '2025-01-01..2025-12-31', // Search for all events in 2025
+          api_key: API_KEY, // Your Active.com API key
+        },
+      });
 
-        return response.data.results.map((race) => ({
-          name: race.assetName,
-          date: new Date(race.activityStartDate),
-          location: `${race.place?.cityName || 'Unknown'}, ${race.place?.stateProvinceCode || ''}`,
-          url: race.registrationUrlAdr,
-          type: race.assetAttributes?.[0]?.attributeValue || 'Unknown', // Type, if available
-          distance: race.assetAttributes?.[1]?.attributeValue || 'Unknown', // Distance, if available
-        }));
-      } catch (err) {
-        console.error('Error fetching races:', err);
-        return [];
-      }
-    };
+      console.log('Total Events Fetched:', response.data.results.length);
+
+      // Map and structure the results
+      return response.data.results.map((race) => ({
+        name: race.assetName || 'Unnamed Event', // Event name or default
+        date: new Date(race.activityStartDate) || null, // Event date
+        location: `${race.place?.cityName || 'Unknown'}, ${race.place?.stateProvinceCode || 'Unknown'}`, // Location
+        url: race.registrationUrlAdr || race.urlAdr || null, // Registration or general URL
+        type: race.assetCategories?.[0]?.categoryName || 'Marathon', // Default to "Marathon"
+        distance: race.assetAttributes?.find((attr) => attr.attributeName === 'distance')?.attributeValue || 'Unknown', // Distance
+      }));
+    } catch (err) {
+      console.error('Error fetching marathons:', err);
+      return [];
+    }
+  };
+
+
+
+
 
     // Fetch and create races
     const racesData = await fetchRaces();
