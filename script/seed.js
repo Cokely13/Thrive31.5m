@@ -10,31 +10,74 @@ async function seed() {
   const API_KEY = 'udx9nyz6kwvh434tgxyhvymt';
 
   const fetchRaces = async () => {
+    const BASE_URL = 'https://api.amp.active.com/v2/search';
+    const MAX_RESULTS_PER_PAGE = 50; // Maximum allowed per API documentation
+    let currentPage = 1;
+    let totalResults = [];
+    let hasMoreResults = true;
+
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); // Throttling function
+
     try {
-      const response = await axios.get('https://api.amp.active.com/v2/search', {
-        params: {
-          query: 'marathon', // Narrow the query to marathons
-          start_date: '2025-01-01..2025-12-31', // Search for all events in 2025
-          api_key: API_KEY, // Your Active.com API key
-        },
-      });
+      while (hasMoreResults) {
+        const response = await axios.get(BASE_URL, {
+          params: {
+            near: 'Massachusetts',
+            topicName: 'Running OR Triathlon',
+            category: 'Event',
+            start_date: `${new Date().toISOString().split('T')[0]}..2025-12-31`, // From today to the end of 2025
+            per_page: MAX_RESULTS_PER_PAGE,
+            current_page: currentPage,
+            api_key: API_KEY,
+          },
+        });
 
-      console.log('Total Events Fetched:', response.data.results.length);
+        const { results, total_results } = response.data;
+        console.log(`Fetched ${results.length} results on page ${currentPage}.`);
 
-      // Map and structure the results
-      return response.data.results.map((race) => ({
-        name: race.assetName || 'Unnamed Event', // Event name or default
-        date: new Date(race.activityStartDate) || null, // Event date
-        location: `${race.place?.cityName || 'Unknown'}, ${race.place?.stateProvinceCode || 'Unknown'}`, // Location
-        url: race.registrationUrlAdr || race.urlAdr || null, // Registration or general URL
-        type: race.assetCategories?.[0]?.categoryName || 'Marathon', // Default to "Marathon"
-        distance: race.assetAttributes?.find((attr) => attr.attributeName === 'distance')?.attributeValue || 'Unknown', // Distance
-      }));
-    } catch (err) {
-      console.error('Error fetching marathons:', err);
+        // Process each event
+        const processedResults = results
+          .map((event) => {
+            // Attempt to extract distance from assetAttributes
+            const distanceAttr = event.assetAttributes?.find(
+              (attr) => attr.attributeType === 'Distance (running)'
+            );
+
+            // Fallback to extracting distance from the name
+            const distanceFromName = event.assetName?.match(/\b(\d+(\.\d+)?\s?(K|k|km|mi|mile|Miles))\b/);
+
+            return {
+              name: event.assetName || 'Unnamed Event',
+              date: event.activityStartDate || 'Date not available',
+              location: `${event.place?.cityName || 'Unknown'}, ${event.place?.stateProvinceCode || 'Unknown'}`,
+              url: event.registrationUrlAdr || event.urlAdr || 'No URL provided',
+              distance: distanceAttr?.attributeValue || distanceFromName?.[0] || 'Unknown',
+            };
+          })
+          // Exclude events with "Unknown" distance
+          .filter((event) => event.distance !== 'Unknown');
+
+        totalResults.push(...processedResults);
+
+        // Check if there are more pages
+        hasMoreResults = totalResults.length < total_results && results.length > 0;
+        currentPage += 1;
+
+        if (hasMoreResults) {
+          await delay(500); // Delay for 500ms (2 requests per second allowed)
+        }
+      }
+
+      console.log(`Total Valid Events Fetched: ${totalResults.length}`);
+      return totalResults;
+    } catch (error) {
+      console.error('Error fetching events:', error.response?.data || error.message);
       return [];
     }
   };
+
+
+
 
 
 
