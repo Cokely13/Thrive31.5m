@@ -21,6 +21,8 @@ import cardioTestsReducer from './allCardioTestsStore'
 import strengthTestsReducer from './allStrengthTestsStore'
 import singleStrengthTestReducer from './singleStrengthTestStore'
 import singleCardioTestReducer from './singleCardioTestStore'
+import racesReducer from './allRacesStore'
+import singleRaceReducer from './singleRaceStore'
 
 const reducer = combineReducers({ auth,
   allCardioStats: cardioStatsReducer,
@@ -40,7 +42,9 @@ const reducer = combineReducers({ auth,
   allCardioTests: cardioTestsReducer,
   allStrengthTests: strengthTestsReducer,
   singleStrengthTest: singleStrengthTestReducer,
-  singleCardioTest: singleCardioTestReducer
+  singleCardioTest: singleCardioTestReducer,
+  allRaces: racesReducer,
+  singleRace: singleRaceReducer
  })
 const middleware = composeWithDevTools(
   applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
