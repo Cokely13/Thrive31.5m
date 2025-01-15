@@ -6,7 +6,7 @@ const CREATE_RACE = "CREATE_RACE";
 const DELETE_RACE = "DELETE_RACE";
 
 // Action Creators
-export const setRaces = () => ({ type: SET_RACES, races });
+export const setRaces = (races) => ({ type: SET_RACES, races });
 const _createRace = (race) => ({ type: CREATE_RACE, race });
 const _deleteRace = (race) => ({ type: DELETE_RACE, race });
 

@@ -13,6 +13,7 @@ import CreateEvent from './components/CreateEvent';
 import CardioTestDetails from './components/CardioTestDetails';
 import StrengthTestDetails from './components/StrengthTestDetails';
 import EventDetails from './components/EventDetails';
+import Races from './components/Race';
 
 /**
  * COMPONENT
@@ -39,6 +40,7 @@ class Routes extends Component {
             <Route path="/eventdetails/:eventId" component={EventDetails} />
             <Route path="/createtest" component={CreateTest} />
             <Route path="/createevent" component={CreateEvent} />
+            <Route path="/races" component={Races} />
             <Redirect to="/home" />
           </Switch>
         ) : (
